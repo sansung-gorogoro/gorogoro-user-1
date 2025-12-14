@@ -10,6 +10,7 @@ import com.gorogoro.auth.user.infra.adapter.out.persistence.UserJpaRepository
 import com.gorogoro.auth.user.infra.persistence.entity.toDomain
 import com.gorogoro.auth.user.infra.persistence.entity.toEntity
 import com.gorogoro.auth.user.model.User
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Repository
 
 @Repository
@@ -23,7 +24,10 @@ class UserPersistenceAdapter(
         return user.toDomain()
     }
 
-    override fun findById(id: Long): User? = userJpaRepository.findById(id).orElse(null).toDomain()
+    override fun findById(id: Long): User? {
+        val user = userJpaRepository.findByIdOrNull(id) ?: throw BusinessException.builder(ErrorCode.USER_NOT_FOUND).build()
+        return user.toDomain()
+    }
 
     override fun existsByNickname(nickname: String): Boolean = userJpaRepository.existsByNickname(nickname)
 
